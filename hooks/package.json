@@ -2,14 +2,16 @@
   "name": "hooks",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "dev": "tsc -b && dist/index.js"
+    "dev": "prisma generate && tsc -b && node dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "@types/express": "^5.0.5",
     "express": "^5.1.0",
     "prisma": "^6.19.0",
