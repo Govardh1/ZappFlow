@@ -1,0 +1,19 @@
+{
+  "name": "worker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsc -b && node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/kafkajs": "^1.8.2",
+    "kafkajs": "^2.2.4",
+    "prisma": "^6.19.0",
+    "typescript": "^5.9.3"
+  }
+}
