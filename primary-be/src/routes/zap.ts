@@ -16,7 +16,7 @@ router.post("/", authMiddleware, async (req, res) => {
 		return res.status(404).json({ msg: "invalid inputs" })
 	}
 
-	await client.$transaction(async (tx) => {
+	const zapId= client.$transaction(async (tx) => {
 		const newZap = await tx.zap.create({
 			data: {
 				userId: parseInt(id),
@@ -45,14 +45,10 @@ router.post("/", authMiddleware, async (req, res) => {
 				triggerId: trigger.id
 			}
 		});
-
-		return tx.zap.findUnique({
-			where: { id: newZap.id },
-			include: {
-				trigger: true,
-				actions: true
-			}
-		});
+		return newZap.id
+	})
+	return res.json({
+		zapId
 	})
 })
 
