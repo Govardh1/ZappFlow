@@ -9,9 +9,9 @@ import { BACKEND_URL } from "../config";
 import { useRouter } from "next/navigation";
 
 export default function () {
-	const router=useRouter()
+	const router = useRouter()
 	const [Email, setEmail] = useState("")
-		const [password, setPassword] = useState("")
+	const [password, setPassword] = useState("")
 	return (
 		<div className="min-h-screen bg-gray-50">
 			<AppBar />
@@ -36,7 +36,7 @@ export default function () {
 								label="Email"
 								onChange={(e) => {
 									setEmail(e.target.value)
-								 }}
+								}}
 								type="text"
 								placeholder="Your Email"
 							/>
@@ -44,21 +44,21 @@ export default function () {
 								label="Password"
 								onChange={(e) => {
 									setPassword(e.target.value)
-								 }}
+								}}
 								type="password"
 								placeholder="Password"
 							/>
 							<div className="pt-4 text-center">
 								<PrimaryButton
-									onClick={async() => {
-									const res=await	axios.post(`${BACKEND_URL}/api/v1/user/signin`,{
-											username:Email,
-											password:password,
+									onClick={async () => {
+										const res = await axios.post(`${BACKEND_URL}/api/v1/user/signin`, {
+											username: Email,
+											password: password,
 										})
-										localStorage.setItem("token",res.data.token)
+										localStorage.setItem("token", res.data.token)
 										router.push("/dashboard")
-									 }
-										
+									}
+
 									}
 									size="big"
 								>

@@ -1,5 +1,10 @@
+import { AppBar } from "@/components/AppBar";
+
 export default function(){
 	return <div>
-		welcome to dashboard
+		<AppBar/>
+		<div className="pt-8">
+
+		</div>
 	</div>
 }
