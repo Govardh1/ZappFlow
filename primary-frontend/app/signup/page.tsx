@@ -64,7 +64,7 @@ export default function () {
 								<PrimaryButton
 									onClick={async() => {
 									const res=await	axios.post(`${BACKEND_URL}/api/v1/user/signup`,{
-											username:Email,
+											email:Email,
 											password:password,
 											name:Name
 										})

@@ -51,10 +51,12 @@ export default function () {
 							<div className="pt-4 text-center">
 								<PrimaryButton
 									onClick={async () => {
+										console.log("login payload:", { username: Email, password });
 										const res = await axios.post(`${BACKEND_URL}/api/v1/user/signin`, {
-											username: Email,
-											password: password,
+											email: Email,
+ 											 password: password,	
 										})
+										
 										localStorage.setItem("token", res.data.token)
 										router.push("/dashboard")
 									}
