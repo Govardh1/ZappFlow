@@ -110,7 +110,7 @@ function ZapTable({ zaps }: { zaps: Zap[] }) {
           							  src={x.type.image} className="w-6 h-6 inline-block"/> ))}
 							</div>
 							<div className="flex-1">{z.id}</div>
-							<div className="flex-1">-</div>
+							<div className="flex-1">{"nov-24-2025"}</div>
 							<div className="flex-1">{`${HOOK_URL}/hooks/catch/1/${z.id}`}</div>
 							<div className="flex-1">
 								<LinkButton onClick={() => router.push("/zaps/" + z.id)}>

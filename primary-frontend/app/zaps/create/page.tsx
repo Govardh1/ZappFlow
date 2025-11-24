@@ -6,6 +6,7 @@ import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import { ZapCell } from "@/components/ZapCell";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { log } from "node:console";
 import { useEffect, useState } from "react";
 
 function useAvailableActionsandTriggers() {
@@ -41,17 +42,17 @@ export default function () {
 					return;
 				}
 
-				const validActions = selectedAction.filter(a => a.availableActionId);
+				// const validActions = selectedAction.filter(a => a.availableActionId);
 
-				if (validActions.length === 0) {
-					alert("Please add at least one action");
-					return;
-				}
+				// if (validActions.length === 0) {
+				// 	alert("Please add at least one action");
+				// 	return;
+				// }
 
 				const res = await axios.post(`${BACKEND_URL}/api/v1/zap`, {
 					"availableTriggerId": selectedTrigger.id,
 					"triggerMetaData": {},
-					"actions": validActions.map(a => ({
+					"actions": selectedAction.map(a => ({
 						availableActionId: a.availableActionId,
 						actionMetaData: {}
 					}))
@@ -67,13 +68,38 @@ export default function () {
 			<div className="flex justify-center">
 				<ZapCell onClick={() => {
 					setSelectedModalIndex(1)
+
 				}} name={selectedTrigger?.name ? selectedTrigger.name : "Trigger"} index={1}></ZapCell>
 			</div>
 			<div className=" w-full pt-2 pb-2" >
 				{selectedAction.map(
 					(action, index) =>
-						<div key={index} className="flex justify-center pb-2"><ZapCell onClick={() => {
-							setSelectedModalIndex(action.index)
+						<div key={index} className="flex justify-center pb-2">
+						<ZapCell onClick={() => {
+							setSelectedModalIndex(action.index)	
+							{selectedModalIndex && <Modal availableItems={selectedModalIndex === 1 ? availableTriggers : availableActions} onSelect={(props: null | { name: string, id: string }) => {
+			if (props === null) {
+				setSelectedModalIndex(null)
+				return
+			}
+			if (selectedModalIndex === 1) {
+				setSelectedTrigger({
+					id: props.id,
+					name: props.name
+				})
+			} else {
+				setSelectedAction(a => {
+					let newActions = [...a]
+					newActions[selectedModalIndex - 2] = {
+						index: selectedModalIndex,
+						availableActionId: props.id,
+						availableActionName: props.name
+					}
+					return newActions
+				})
+			}
+			setSelectedModalIndex(null)
+		}} index={selectedModalIndex} />}
 						}} name={action.availableActionName ? action.availableActionName : "Action"} index={action.index}>
 						</ZapCell>
 						</div>)}
