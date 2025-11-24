@@ -3,10 +3,10 @@ import { BACKEND_URL } from "@/app/config";
 import { AppBar } from "@/components/AppBar";
 import { LinkButton } from "@/components/buttons/LinkButton";
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
+import { Input } from "@/components/Input";
 import { ZapCell } from "@/components/ZapCell";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { log } from "node:console";
 import { useEffect, useState } from "react";
 
 function useAvailableActionsandTriggers() {
@@ -31,6 +31,7 @@ export default function () {
 		index: number
 		availableActionId: string
 		availableActionName: string
+		metadata:any
 	}[]>([]);
 	const [selectedModalIndex, setSelectedModalIndex] = useState<null | number>(null)
 	return <div>
@@ -54,7 +55,7 @@ export default function () {
 					"triggerMetaData": {},
 					"actions": selectedAction.map(a => ({
 						availableActionId: a.availableActionId,
-						actionMetaData: {}
+						actionMetaData: a.metadata
 					}))
 				}, {
 					headers: {
@@ -77,29 +78,7 @@ export default function () {
 						<div key={index} className="flex justify-center pb-2">
 						<ZapCell onClick={() => {
 							setSelectedModalIndex(action.index)	
-							{selectedModalIndex && <Modal availableItems={selectedModalIndex === 1 ? availableTriggers : availableActions} onSelect={(props: null | { name: string, id: string }) => {
-			if (props === null) {
-				setSelectedModalIndex(null)
-				return
-			}
-			if (selectedModalIndex === 1) {
-				setSelectedTrigger({
-					id: props.id,
-					name: props.name
-				})
-			} else {
-				setSelectedAction(a => {
-					let newActions = [...a]
-					newActions[selectedModalIndex - 2] = {
-						index: selectedModalIndex,
-						availableActionId: props.id,
-						availableActionName: props.name
-					}
-					return newActions
-				})
-			}
-			setSelectedModalIndex(null)
-		}} index={selectedModalIndex} />}
+							// {<Modal availableItems={selectedModalIndex===1 ? availableTriggers || availableActions} onSelect={"name"} index={1}/>}
 						}} name={action.availableActionName ? action.availableActionName : "Action"} index={action.index}>
 						</ZapCell>
 						</div>)}
@@ -107,13 +86,13 @@ export default function () {
 
 			<PrimaryButton onClick={() => {
 				setSelectedAction(a => [...a, {
-					index: a.length + 2, availableActionId: "", availableActionName: ""
+					index: a.length + 2, availableActionId: "", availableActionName: "",metadata:{}
 				}
 				])
 			}}><div className="text-2xl flex flex-col items-center justify-center"> + </div>
 			</PrimaryButton>
 		</div>
-		{selectedModalIndex && <Modal availableItems={selectedModalIndex === 1 ? availableTriggers : availableActions} onSelect={(props: null | { name: string, id: string }) => {
+		{selectedModalIndex && <Modal availableItems={selectedModalIndex === 1 ? availableTriggers : availableActions} onSelect={(props: null | { name: string, id: string ,metadata:any}) => {
 			if (props === null) {
 				setSelectedModalIndex(null)
 				return
@@ -129,7 +108,8 @@ export default function () {
 					newActions[selectedModalIndex - 2] = {
 						index: selectedModalIndex,
 						availableActionId: props.id,
-						availableActionName: props.name
+						availableActionName: props.name,
+						metadata:props.metadata
 					}
 					return newActions
 				})
@@ -139,7 +119,15 @@ export default function () {
 	</div>
 }
 
-function Modal({ index, onSelect, availableItems }: { index: number, onSelect: (props: null | { name: string, id: string }) => void, availableItems: { id: string, name: string, image: string }[] }) {
+function Modal({ index, onSelect, availableItems }: { index: number, onSelect: (props: null | { name: string, id: string,metadata:any }) => void, availableItems: { id: string, name: string, image: string }[] }) {
+	const [step,setStep]=useState(0)
+	const [selectedAction,setSelectedAction]=useState<{
+		id:string,
+		name:string
+	}>()
+
+	const isTrigger= index===1;
+	
 	return <div id="static-modal" data-modal-backdrop="static" className="fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] bg-slate-100 bg-opacity-70 max-h-full">
 		<div className="relative p-4 w-full max-w-2xl max-h-full">
 
@@ -156,13 +144,39 @@ function Modal({ index, onSelect, availableItems }: { index: number, onSelect: (
 						<span className=" cursor-pointer sr-only">close Modal</span>
 					</button>
 				</div>
-
 				<div className="p-4 md-p-5 space-y-4">
-					{availableItems.map(({ id, name, image }) => {
-						return (
-							<div 
-							key={id}
-							onClick={() => onSelect({ id, name })}
+					{step===1 && selectedAction?.id==="email" && <EmailSelector setMetadata={(metadata) => {
+		onSelect({
+			...selectedAction,
+			metadata
+		})
+	}}/>}
+						
+					{(step===1 && selectedAction?.id==="send-sol") && <SolanaSelector setMetadata={(metadata) => {
+		onSelect({
+			...selectedAction,
+			metadata
+		})
+	}}/>}
+					{step ===0 && <div>
+						{availableItems.map(({ id, name, image }) => {
+						return (<div key={id} onClick={() =>{ 
+								if (isTrigger){
+									onSelect({ 
+										id,
+										name,
+										metadata:{}
+									 }	
+								)
+								}else{
+									setStep(s=>s+1)
+									setSelectedAction({
+										id,
+										name
+									})
+								}
+							}
+						}
 							className="flex border p-4 hover:bg-slate-200 cursor-pointer"
 							>
 							<img src={image} className="rounded h-[30px] pr-2" />
@@ -170,8 +184,47 @@ function Modal({ index, onSelect, availableItems }: { index: number, onSelect: (
 							</div>
 						);
 						})}
+						</div>}
+				
+					
 				</div>
 			</div>
 		</div>
+	</div>
+}
+
+function EmailSelector({setMetadata}:{setMetadata:(params:any)=>void}){
+	const [email,setEmail]=useState("")
+	const [body,setBody]=useState("")
+	return <div>
+	<Input type="text" label="To" placeholder="To" onChange={(e)=>{
+		setEmail(e.target.value)
+	}}></Input>
+	<Input type="text" label="Body" placeholder="Body" onChange={(e)=>{
+		setEmail(e.target.value)
+	}}></Input>
+	<PrimaryButton onClick={()=>{
+		setMetadata({
+			email,
+			body
+		})
+	}} >Submit</PrimaryButton>
+	</div>
+}
+function SolanaSelector({setMetadata}:{setMetadata:(params:any)=>void}){
+	const [amount,setAmount]=useState("")
+	const [address,setAdress]=useState("")
+	return 	<div>
+	<Input type="text" label="amount" placeholder="amount" onChange={(e)=>{
+		setAmount(e.target.value)
+	}}></Input>
+	<Input type="text" label="address" placeholder="address" onChange={(e)=>{
+		setAdress(e.target.value)
+	}}></Input>
+	<PrimaryButton onClick={()=>{
+		setMetadata({
+			amount,address
+		})
+	}} >Submit</PrimaryButton>
 	</div>
 }
