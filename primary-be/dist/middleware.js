@@ -2,19 +2,16 @@ import Jwt from "jsonwebtoken";
 import { JWT_USER_SECRET } from "./config.js";
 export const authMiddleware = (req, res, next) => {
     const token = req.headers.authorization;
-    console.log(token);
+    if (!token) {
+        return res.status(401).json({ msg: "No token provided" });
+    }
     try {
         const payload = Jwt.verify(token, JWT_USER_SECRET);
         // @ts-ignore
-        req.id = payload.id;
-        // @ts-ignore
-        console.log(req.id + " from middlware ep");
+        req.id = Number(payload.id);
         next();
     }
-    catch (error) {
-        return res.status(403).json({
-            msg: "you are not logged in"
-        });
+    catch (e) {
+        return res.status(401).json({ msg: "Invalid token" });
     }
 };
-//# sourceMappingURL=middleware.js.map

@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware.js";
 import { zapCreateSchema } from "../types/inde.js";
-import { PrismaClient } from "@prisma/client";
-const client = new PrismaClient();
+import prisma from "../lib/prisma.js";
 const router = Router();
 router.post("/", authMiddleware, async (req, res) => {
     const body = req.body;
@@ -12,15 +11,16 @@ router.post("/", authMiddleware, async (req, res) => {
     if (!parsedData.success) {
         return res.status(404).json({ msg: "invalid inputs" });
     }
-    const zapId = client.$transaction(async (tx) => {
+    const zapId = prisma.$transaction(async (tx) => {
         const newZap = await tx.zap.create({
             data: {
-                userId: parseInt(id),
+                userId: Number(id),
                 triggerId: "",
                 actions: {
                     create: parsedData.data.actions.map((x, index) => ({
                         actionId: x.availableActionId,
-                        sortingOrder: index
+                        sortingOrder: index,
+                        metedata: x.actionMetaData
                     }))
                 }
             }
@@ -47,8 +47,8 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 router.get("/", authMiddleware, async (req, res) => {
     // @ts-ignore
-    const id = req.id;
-    const zaps = await client.zap.findMany({
+    const id = Number(req.id);
+    const zaps = await prisma.zap.findMany({
         where: {
             userId: id
         },
@@ -71,14 +71,14 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 router.get("/:zapId", authMiddleware, async (req, res) => {
     // @ts-ignore
-    const id = req.id;
+    const id = Number(req.id);
     const zapId = req.params.zapId;
     if (!zapId) {
         return res.status(400).json({
             error: "zapId is required"
         });
     }
-    const zap = await client.zap.findFirst({
+    const zap = await prisma.zap.findFirst({
         where: {
             id: zapId,
             userId: id
@@ -106,4 +106,3 @@ router.get("/:zapId", authMiddleware, async (req, res) => {
     });
 });
 export const zapRouter = router;
-//# sourceMappingURL=zap.js.map

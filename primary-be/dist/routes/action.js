@@ -1,12 +1,10 @@
-import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
-const client = new PrismaClient();
+import prisma from "../lib/prisma.js";
 const router = Router();
 router.get("/available", async (req, res) => {
-    const availableActions = await client.availableAction.findMany({});
+    const availableActions = await prisma.availableAction.findMany({});
     res.json({
         availableActions
     });
 });
 export const actionRouter = router;
-//# sourceMappingURL=action.js.map

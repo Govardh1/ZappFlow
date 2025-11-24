@@ -12,4 +12,3 @@ app.use("/api/v1/zap", zapRouter);
 app.use("/api/v1/trigger", triggerRouter);
 app.use("/api/v1/action", actionRouter);
 app.listen(3002, () => console.log("Server running on 3002"));
-//# sourceMappingURL=index.js.map

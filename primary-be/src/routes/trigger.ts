@@ -1,12 +1,12 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "../lib/prisma.js";
 import { Router } from "express";
-const client = new PrismaClient()
+
 
 const router=Router()
 
 router.get("/available", async (req, res) => {
   try {
-    const availableTriggers = await client.availableTrigger.findMany();
+    const availableTriggers = await prisma.availableTrigger.findMany();
     res.json({ availableTriggers });
   } catch (err) {
     console.error(err);

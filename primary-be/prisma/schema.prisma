@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -12,7 +11,7 @@ model User {
   name     String
   email    String
   password String
-  zaps Zap[]
+  zaps     Zap[]
 }
 
 model Zap {
@@ -44,16 +43,17 @@ model Action {
   id           String          @id @default(uuid())
   zapId        String
   actionId     String
+  metadata     Json            @default("{}")
   sortingOrder Int             @default(0)
   type         AvailableAction @relation(fields: [actionId], references: [id])
   zap          Zap             @relation(fields: [zapId], references: [id])
 }
 
 model AvailableAction {
-  id       String   @id @default(uuid())
-  name     String
-  actiions Action[]
-  image    String
+  id      String   @id @default(uuid())
+  name    String
+  actions Action[] 
+  image   String
 }
 
 model ZapRun {
