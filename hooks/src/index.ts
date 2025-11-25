@@ -1,5 +1,6 @@
 import express from "express"
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
+
 const app = express();
 const client = new PrismaClient()
 app.use(express.json()) 
@@ -33,6 +34,6 @@ app.post("/hooks/catch/:userID/:zapId", async (req, res) => {
 	}
 })
 
-app.listen(3000, () => {
-	console.log("Webhook server listening on port 3000");
+app.listen(3004, () => {
+	console.log("Webhook server listening on port 3004");
 });

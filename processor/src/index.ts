@@ -1,6 +1,7 @@
 import express from "express"
 import { PrismaClient } from "@prisma/client"
 import { Kafka } from "kafkajs"
+import { json } from "body-parser"
 const app = express()
 const client = new PrismaClient()
 const TOPIC_NAME = "zap-events"
@@ -17,12 +18,16 @@ async function main() {
 			where: {},
 			take: 10
 		})
+		
+		
 		producer.send({
 			topic: TOPIC_NAME,
 			messages: pendingRows.map(r => ({
-				value: r.zapRunId
+				value:JSON.stringify({zapRunId:r.zapRunId , stage:0})
 			}))
 		})
+
+
 		await client.zapRunOutBox.deleteMany({
 			where:{
 				id:{
@@ -30,5 +35,8 @@ async function main() {
 				}
 			}
 		})
+		
 	}
 }
+
+main()
