@@ -15,7 +15,7 @@ router.post("/", authMiddleware, async (req, res) => {
 		return res.status(404).json({ msg: "invalid inputs" })
 	}
 
-	const zapId= prisma.$transaction(async (tx) => {
+	const zapId= await prisma.$transaction(async (tx) => {
 		const newZap = await tx.zap.create({
 			data: {
 				userId: Number(id),
@@ -24,7 +24,7 @@ router.post("/", authMiddleware, async (req, res) => {
 					create: parsedData.data.actions.map((x, index) => ({
 						actionId: x.availableActionId,
 						sortingOrder: index,
-						metedata:x.actionMetaData
+						metadata:x.actionMetaData
 					}))
 				}
 			}
